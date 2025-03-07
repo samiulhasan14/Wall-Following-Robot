@@ -1,0 +1,126 @@
+#define enA 26  // ENABLE pin for Motor A (PWM)
+#define in1 11  // IN1 pin for Motor A (Direction)
+#define in2 12  // IN2 pin for Motor A (Direction)
+#define enB 14  // ENABLE pin for Motor B (PWM)PB6
+#define in3 28  // IN3 pin for Motor B (Direction)
+#define in4 29  // IN4 pin for Motor B (Direction)
+#define trigPin 6  // Ultrasonic sensor TRIG pin
+#define echoPin 5  // Ultrasonic sensor ECHO pin
+#define irSensor 3 // IR sensor pin for left-side detection PV PB0
+
+//motor A left motor faulty - moving slow
+
+void setup() {
+    Serial.begin(115200);
+    
+    pinMode(enA, OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+    pinMode(enB, OUTPUT);
+    pinMode(in3, OUTPUT);
+    pinMode(in4, OUTPUT);
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
+    pinMode(irSensor, INPUT);
+
+    stopMotors();
+}
+
+void loop() {
+    moveForward();
+    int distance = getDistance();
+    bool leftObstacle = digitalRead(irSensor);
+//    if (distance<10){
+//      if (leftObstacle == LOW){
+          Serial.println("Condition true");
+//        turnLeft();
+//        moveForward();
+//      }
+//      else{
+//        turnRight();
+//        moveForward();
+//      }
+//    }
+    
+    if (distance<5){
+     // Serial.println("5 cm detected");
+      //stopMotors();
+      //delay(100);
+//      Serial.println("Motor stopped");
+      turnLeft();
+//      Serial.println("Turning Left");
+      //stopMotors();  
+//       Serial.println("Motor stopped");
+    //  moveForward();
+//      Serial.println("Moving Forward");
+    }
+//    else{
+//      moveForward();
+//    }
+//    
+//    moveForward();
+//    
+//    if (distance < 10 && leftObstacle == LOW) {
+//        turnLeft();
+//    } 
+//    else if (distance < 10 && leftObstacle ==  HIGH) {
+//        turnRight();
+//    } 
+    
+}
+
+int getDistance() {
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    long duration = pulseIn(echoPin, HIGH);
+    int distance = duration * 0.0343 / 2;
+    return distance;
+}
+
+void moveForward() {
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+    analogWrite(enA, 200);
+    analogWrite(enB, 64);
+}
+
+void turnRight() {
+//    stopMotors();
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
+    analogWrite(enA, 200); // Right wheel moves faster
+    analogWrite(enB, 50);  // Left wheel moves slower
+    //delay(100);
+}
+
+void turnLeft() {
+//    stopMotors();
+//    delay(300);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+    analogWrite(enA, 0);  // Right wheel moves slower
+    analogWrite(enB, 200); // Left wheel moves faster
+    delay(500); //turn for 3.5 secs
+    //moveForward();
+   // stopMotors();
+//    delay(100);
+}
+
+void stopMotors() {
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, LOW);
+    analogWrite(enA, 0);
+    analogWrite(enB, 0);
+}
