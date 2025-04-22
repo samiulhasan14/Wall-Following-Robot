@@ -1,0 +1,121 @@
+const int red = 30; // Present at PF1 const int green = 39; // Present at PF2 
+
+ 
+// Motor Control Pins #define enA 14 // PB6 #define enB 26 // PD3 #define LEFT_IN1 11 // PA2 #define LEFT_IN2 12 // PA3 #define RIGHT_IN3 28 // PE2 #define RIGHT_IN4 10 // PA7 
+
+// Ultrasonic Sensor Pins #define TRIG_1 6 #define ECHO_1 5 #define TRIG_2 7 #define ECHO_2 8 #define TRIG_3 32 #define ECHO_3 33 
+
+int STOP_DISTANCE = 30; int WALL_DISTANCE = 10; long cm1, cm2, cm3; bool isRunning = false; char command; 
+
+void setup() { Serial.begin(9600); 
+
+ 
+// Configure motor pins pinMode(LEFT_IN1, OUTPUT); pinMode(LEFT_IN2, OUTPUT); pinMode(RIGHT_IN3, OUTPUT); pinMode(RIGHT_IN4, OUTPUT); 
+
+pinMode(enB, OUTPUT); pinMode(enA, OUTPUT); 
+
+
+
+// Configure ultrasonic sensor pins pinMode(TRIG_1, OUTPUT); pinMode(ECHO_1, INPUT); pinMode(TRIG_2, OUTPUT); pinMode(ECHO_2, INPUT); pinMode(TRIG_3, OUTPUT); pinMode(ECHO_3, INPUT); 
+
+Serial.print(cm3); Serial.println(" cm"); 
+
+if (cm1 < STOP_DISTANCE) { 
+
+stopMotors(); delay(200); 
+
+ 
+
+if (cm2 > STOP_DISTANCE) { 
+
+Serial.println("Front blocked. Turning left."); Move_Right(); 
+
+} else if (cm3 > STOP_DISTANCE) { Serial.println("Front blocked. Turning right."); Move_Left(); 
+
+} else { 
+
+Serial.println("Surrounded! Stopping."); stopMotors(); 
+
+} 
+
+} else if (cm2 < 12) { stopMotors(); delay(200); 
+
+Serial.println("Too close to left wall. Adjusting right."); Adjust_Right(); 
+
+} else if (cm3 < 12) { stopMotors(); delay(200); 
+
+Serial.println("Too close to right wall. Adjusting left."); Adjust_Left(); 
+
+} else { 
+
+Serial.println("Path clear. Moving forward."); Move_Forward(); 
+
+} 
+
+} 
+
+ 
+
+ 
+
+} 
+
+ 
+
+void Move_Right() { digitalWrite(LEFT_IN1, HIGH); 
+digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 150); 
+
+analogWrite(enA, 0); delay(180); } 
+
+void Adjust_Right() 
+
+ 
+
+{ digitalWrite(LEFT_IN1, HIGH); digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 80); 
+
+analogWrite(enA, 64); } void Adjust_Left() 
+
+{ digitalWrite(LEFT_IN1, HIGH); digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 64); 
+
+analogWrite(enA, 80); } void Move_Left() 
+
+{ digitalWrite(LEFT_IN1, HIGH); // <-- flipped 
+
+ digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); // <-- flipped digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 0); 
+
+analogWrite(enA, 150); delay(180); } 
+
+void Move_Forward() 
+
+ 
+
+{ digitalWrite(LEFT_IN1, HIGH); digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 80); 
+
+analogWrite(enA, 80); } void stopMotors() 
+
+{ digitalWrite(LEFT_IN1, HIGH); digitalWrite(LEFT_IN2, LOW); digitalWrite(RIGHT_IN3, LOW); // <-- flipped digitalWrite(RIGHT_IN4, HIGH); analogWrite(enB, 0); 
+
+analogWrite(enA, 0); } 
+
+ 
+
+long microsecondsToCentimeters(long microseconds) { return (microseconds * 0.0343) / 2; } 
+long getDistance(int trigPin, int echoPin) { digitalWrite(trigPin, LOW); delayMicroseconds(2); digitalWrite(trigPin, HIGH); delayMicroseconds(10); digitalWrite(trigPin, LOW); 
+
+long duration = pulseIn(echoPin, HIGH, 10000); 
+
+ 
+
+if (duration == 0) { return 100; 
+
+} 
+
+ 
+
+return microsecondsToCentimeters(duration); 
+
+ 
+
+ 
+
+} 
