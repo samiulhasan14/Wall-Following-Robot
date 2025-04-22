@@ -1,0 +1,22 @@
+#define FRONT_THRESHOLD 30 // cm
+#define LEFT_THRESHOLD 30 // cm
+
+void lOon() {
+if (frontDist < FRONT_THRESHOLD && leftDist > LEFT_THRESHOLD) {
+Serial println("Turning left");
+turnl eft();
+}
+else if (frontDist < FRONT_THRESHOLD) {
+Serial printin("Obstacle everywhere - adjusting");
+stonMotors();
+delay(500);
+turnRight();
+
+}
+
+else {
+Serial printin("Moving forward");
+moveForward();
+
+}
+}
